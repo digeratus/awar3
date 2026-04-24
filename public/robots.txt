@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://awar3.com/sitemap-index.xml

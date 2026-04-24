@@ -1,33 +1,50 @@
-# AWAR3 Cloudflare Pages repo
+# AWAR3 Astro Skunkworks
 
-This repository layout is designed to create a **Cloudflare Pages** project (not a Worker) when you use **Git integration**.
+Astro SPA-style launch site for AWAR3, designed for Cloudflare Pages.
 
-## Structure
+## Project
 
-- `public/` — deploy-ready static site files for AWAR3
+- Project name: `awar3-astro-skunkworks`
+- Framework: Astro static output with `ClientRouter`
+- Canonical domain: `https://awar3.com`
+- Contact: `info@awar3.com`
+- Local legacy static export: `legacy-static-site/` (ignored by Git)
 
-## Cloudflare Pages settings
-
-When importing this GitHub repository into Cloudflare Pages:
-
-- **Framework preset:** None
-- **Production branch:** `main`
-- **Build command:** `exit 0`
-- **Build output directory:** `public`
-- **Root directory:** leave blank
-
-## Notes
-
-- The live contact email is already set to `info@awar3.com`.
-- The `_headers`, `404.html`, `robots.txt`, and shared assets are already included inside `public/`.
-
-## Local Git commands
+## Local development
 
 ```bash
-git init
-git add .
-git commit -m "Initial commit"
-git branch -M main
-git remote add origin https://github.com/<YOUR_GITHUB_USERNAME>/<YOUR_REPOSITORY_NAME>.git
-git push -u origin main
+npm install
+npm run dev
 ```
+
+## Build
+
+```bash
+npm run build
+npm run preview
+```
+
+The production build is emitted to `dist/`.
+
+## Cloudflare Pages
+
+Use the Pages Git flow:
+
+- Production branch: `main`
+- Build command: `npm run build`
+- Build output directory: `dist`
+- Root directory: leave blank
+
+Do not import this repository through the Workers build flow.
+
+## Custom domain
+
+After the Pages project deploys successfully:
+
+1. Open the Pages project in Cloudflare.
+2. Go to **Custom domains**.
+3. Add `awar3.com`.
+4. Add `www.awar3.com`.
+5. Keep `awar3.com` canonical and redirect `www.awar3.com` to `https://awar3.com`.
+
+Cloudflare Pages must associate the domain through the Pages Custom domains UI. Do not rely on a manually created CNAME alone.
