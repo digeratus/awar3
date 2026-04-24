@@ -28,7 +28,17 @@ The production build is emitted to `dist/`.
 
 ## Cloudflare Pages
 
-Use the Pages Git flow:
+The current live Pages project is a Direct Upload project named
+`awar3-astro-skunkworks`. GitHub pushes deploy through
+`.github/workflows/deploy-pages.yml`, which builds the Astro site and runs
+Wrangler against that existing Pages project.
+
+GitHub repository secrets required for deployment:
+
+- `CLOUDFLARE_API_TOKEN`: Cloudflare API token with `Account > Cloudflare Pages > Edit`
+- `CLOUDFLARE_ACCOUNT_ID`: Cloudflare account ID for the Pages project
+
+Workflow deployment settings:
 
 - Production branch: `main`
 - Build command: `npm run build`
