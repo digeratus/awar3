@@ -1,60 +1,38 @@
-# AWAR3 Astro Skunkworks
+# AWAR3
 
-Astro SPA-style launch site for AWAR3, designed for Cloudflare Pages.
+AWAR3 is building human-centered technology for a more aware, adaptive, and intelligent future.
 
-## Project
+We focus on tools that help people make better decisions, understand their environments more clearly, and use emerging technology in ways that preserve agency, privacy, and trust.
 
-- Project name: `awar3-astro-skunkworks`
-- Framework: Astro static output with `ClientRouter`
-- Canonical domain: `https://awar3.com`
-- Contact: `info@awar3.com`
-- Local legacy static export: `legacy-static-site/` (ignored by Git)
+## What We Do
 
-## Local development
+AWAR3 works at the edge of artificial intelligence, product design, and applied research. Our aim is to create practical systems that are useful in everyday life—not technology for its own sake, but technology that helps people notice, decide, and act with greater clarity.
 
-```bash
-npm install
-npm run dev
-```
+Our work is guided by a few principles:
 
-## Build
+- Human agency comes first.
+- Privacy should be designed in from the beginning.
+- Intelligent systems should explain, not obscure.
+- Good technology should reduce friction without taking control away from the user.
+- Products should be useful, respectful, and grounded in real human needs.
 
-```bash
-npm run build
-npm run preview
-```
+## Focus Areas
 
-The production build is emitted to `dist/`.
+AWAR3 is interested in:
 
-## Cloudflare Pages
+- Human-centered AI
+- Ambient and context-aware computing
+- Decision-support tools
+- Health, behavior, and everyday choice environments
+- Privacy-preserving product design
+- Research-informed software development
 
-The current live Pages project is a Direct Upload project named
-`awar3-astro-skunkworks`. GitHub pushes deploy through
-`.github/workflows/deploy-pages.yml`, which builds the Astro site and runs
-Wrangler against that existing Pages project.
+## Contact
 
-GitHub repository secrets required for deployment:
+For inquiries, please contact:
 
-- `CLOUDFLARE_API_TOKEN`: Cloudflare API token with `Account > Cloudflare Pages > Edit`
-- `CLOUDFLARE_ACCOUNT_ID`: Cloudflare account ID for the Pages project
+**info@awar3.com**
 
-Workflow deployment settings:
+## Website
 
-- Production branch: `main`
-- Build command: `npm run build`
-- Build output directory: `dist`
-- Root directory: leave blank
-
-Do not import this repository through the Workers build flow.
-
-## Custom domain
-
-After the Pages project deploys successfully:
-
-1. Open the Pages project in Cloudflare.
-2. Go to **Custom domains**.
-3. Add `awar3.com`.
-4. Add `www.awar3.com`.
-5. Keep `awar3.com` canonical and redirect `www.awar3.com` to `https://awar3.com`.
-
-Cloudflare Pages must associate the domain through the Pages Custom domains UI. Do not rely on a manually created CNAME alone.
+https://awar3.com
