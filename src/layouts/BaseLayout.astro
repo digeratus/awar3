@@ -1,34 +1,51 @@
 ---
-import { ClientRouter } from "astro:transitions";
+import { siteContent } from "../content/site";
+import type { Variant } from "../lib/variants";
 import "../styles/global.css";
 
 interface Props {
   title: string;
   description: string;
+  variant: Variant;
+  robots?: string;
 }
 
-const { title, description } = Astro.props;
+const {
+  title,
+  description,
+  variant,
+  robots = "index,follow,max-image-preview:large"
+} = Astro.props;
+
+const themeColors: Record<Variant, string> = {
+  "field-station": "#e8e2cf",
+  "airborne-workshop": "#f1ede3",
+  "living-systems": "#f5f1e8",
+  "industrial-hybrid": "#f3efe7"
+};
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-variant={variant}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
-    <meta name="robots" content="index,follow" />
-    <meta name="theme-color" content="#112b45" />
+    <meta name="robots" content={robots} />
+    <meta name="theme-color" content={themeColors[variant]} />
+    <meta name="color-scheme" content="light" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://awar3.com" />
-    <link rel="canonical" href="https://awar3.com" />
+    <meta property="og:url" content={siteContent.metadata.canonical} />
+    <meta name="twitter:card" content="summary" />
+    <link rel="canonical" href={siteContent.metadata.canonical} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <title>{title}</title>
-    <ClientRouter />
   </head>
   <body>
-    <a class="skip-link" href="#main">Skip to content</a>
+    <a class="skip-link skip-link-desktop" href="#desktop-main">Skip to desktop design</a>
+    <a class="skip-link skip-link-mobile" href="#legacy-main">Skip to content</a>
     <slot />
   </body>
 </html>

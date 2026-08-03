@@ -1,0 +1,25 @@
+---
+import VariantPage from "../../components/VariantPage.astro";
+import { siteContent } from "../../content/site";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { variantNames, variants, type Variant } from "../../lib/variants";
+
+export function getStaticPaths() {
+  return variants.map((variant) => ({ params: { variant }, props: { variant } }));
+}
+
+interface Props {
+  variant: Variant;
+}
+
+const { variant } = Astro.props;
+---
+
+<BaseLayout
+  title={`${variantNames[variant]} | ${siteContent.metadata.title}`}
+  description={siteContent.metadata.description}
+  variant={variant}
+  robots="noindex,nofollow"
+>
+  <VariantPage variant={variant} />
+</BaseLayout>

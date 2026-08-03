@@ -1,0 +1,14 @@
+---
+import ExactBoard from "./ExactBoard.astro";
+import LegacyMobile from "./LegacyMobile.astro";
+import type { Variant } from "../lib/variants";
+
+interface Props {
+  variant: Variant;
+}
+
+const { variant } = Astro.props;
+---
+
+<ExactBoard variant={variant} />
+<LegacyMobile />

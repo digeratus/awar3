@@ -787,3 +787,99 @@ h2 {
     scroll-behavior: auto !important;
   }
 }
+
+
+.legacy-mobile {
+  display: block;
+}
+
+.skip-link-mobile {
+  display: block;
+}
+
+.skip-link-desktop {
+  display: none;
+}
+
+/* Exact supplied-board desktop presentation. The existing live responsive site remains
+   available below 851px until the separately approved mobile pass. */
+.exact-board {
+  display: none;
+}
+
+@media (min-width: 851px) {
+  html {
+    scroll-padding-top: 0;
+  }
+
+  html[data-variant="field-station"] body,
+  html[data-variant="airborne-workshop"] body,
+  html[data-variant="living-systems"] body {
+    background: #e8e0cf;
+  }
+
+  html[data-variant="industrial-hybrid"] body {
+    background: #052438;
+  }
+
+  .legacy-mobile {
+    display: none;
+  }
+
+  .skip-link-mobile {
+    display: none;
+  }
+
+  .skip-link-desktop {
+    display: block;
+  }
+
+  .exact-board {
+    position: relative;
+    display: block;
+    width: min(100%, 1440px);
+    margin-inline: auto;
+    overflow: hidden;
+    background: #eee7d7;
+    line-height: 0;
+  }
+
+  .exact-board-industrial-hybrid {
+    background: #052438;
+  }
+
+  .exact-board-image {
+    width: 100%;
+    height: auto;
+    max-width: none;
+  }
+
+  .exact-anchor {
+    position: absolute;
+    z-index: 2;
+    top: var(--top);
+    left: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+
+  .exact-hotspot {
+    position: absolute;
+    z-index: 3;
+    top: var(--top);
+    left: var(--left);
+    width: var(--width);
+    height: var(--height);
+    border-radius: 3px;
+    color: transparent;
+    font-size: 0;
+    line-height: 0;
+  }
+
+  .exact-hotspot:focus-visible {
+    outline: 3px solid #f06a45;
+    outline-offset: 3px;
+    background: rgb(240 106 69 / 0.08);
+  }
+}

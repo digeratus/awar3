@@ -1,6 +1,7 @@
 node_modules/
 dist/
 .astro/
+.wrangler/
 .DS_Store
 legacy-static-site/
 npm-debug.log*

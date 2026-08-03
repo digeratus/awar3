@@ -1,6 +1,7 @@
-name: Deploy to Cloudflare Pages
+name: Validate and deploy to Cloudflare Pages
 
 on:
+  pull_request:
   push:
     branches:
       - main
@@ -10,30 +11,88 @@ permissions:
   deployments: write
 
 jobs:
-  deploy:
-    name: Build and deploy
+  validate:
+    name: Check, test, audit, and build
     runs-on: ubuntu-latest
-
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.9.0
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
+          cache: pnpm
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
-      - name: Build site
-        run: npm run build
+      - name: Type-check Astro
+        run: pnpm check
 
-      - name: Deploy to Cloudflare Pages
+      - name: Run unit and desktop-asset tests
+        run: pnpm test
+
+      - name: Audit production dependencies
+        run: pnpm audit --prod --audit-level high
+
+      - name: Build production site
+        run: pnpm build
+
+      - name: Enforce asset budgets
+        run: pnpm check:assets
+
+      - name: Upload validated build
+        uses: actions/upload-artifact@v4
+        with:
+          name: awar3-dist
+          path: dist
+          retention-days: 7
+
+  deploy:
+    name: Deploy Cloudflare Pages
+    needs: validate
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.9.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build site and Pages Function
+        run: pnpm build
+
+      - name: Deploy production
+        if: github.event_name == 'push'
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           command: pages deploy dist --project-name=awar3-astro-skunkworks --branch=main
+
+      - name: Deploy pull-request preview
+        if: github.event_name == 'pull_request'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          command: pages deploy dist --project-name=awar3-astro-skunkworks --branch=pr-${{ github.event.number }}
