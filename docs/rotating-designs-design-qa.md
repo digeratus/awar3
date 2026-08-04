@@ -181,3 +181,11 @@ Visual captures were inspected and retained outside the deployable repository:
 - `/Users/riceandrobots/.codex/visualizations/2026/08/03/019fc883-5bdf-7f10-888c-ba99fa0b39a7/awar3-desktop-only-mobile.png`
 
 Result: the four desktop designs pass this reduced scope; the existing live mobile fallback passes functional smoke testing. New mobile designs remain unimplemented by explicit user direction.
+
+## 2026-08-03 23:20 EDT — Production HTTP QA and pending visual pass
+
+- Production commit `8a0be233462bd83dc2b2169d7751b7832c259900` deployed successfully to `awar3.com` through Cloudflare Pages deployment `ad0eeb51`.
+- All four static variant routes and all four approved WebPs returned HTTP 200. Production image hashes match the locally approved board files exactly, proving that deployment did not alter or recompress the designs.
+- Root selection is device-independent: desktop and iPhone user agents both received Field Station on the same New York date. After normalization of Cloudflare's per-request email-protection tokens, their full HTML responses were identical.
+- Anchors, stylesheet, favicon, mobile script, security headers, `www` redirect, robots, sitemap, valid override, and invalid-override fallback passed direct production checks.
+- Post-deployment in-app Browser visual and click QA is pending. The earlier all-Node process cleanup requested by the user terminated the Browser plugin's helper. Reconnection attempts returned a closed transport, so no production screenshot, console inspection, rendered-overflow check, menu click, hotspot click, or email-link click is claimed in this entry. The already-completed local Browser matrix remains the visual baseline until the in-app Browser helper is restarted and the live routes are rechecked.

@@ -1,6 +1,6 @@
 # AWAR3 Rotating Designs — Release Record
 
-Status: locally validated; external preview and production release not performed
+Status: production deployed; automated and HTTP smoke tests passed; post-deployment in-app Browser visual pass pending helper restart
 
 ## Closing validation — 2026-08-03 EDT
 
@@ -144,3 +144,16 @@ Closing commit measurement: the unpublished candidate is approximately 4.00 MiB 
 Closing local Cloudflare response smoke: scheduled `/` returned HTTP 200 with `X-AWAR3-Variant: field-station`, New York date `2026-08-03`, revalidation, HSTS, restrictive CSP, clickjacking protection, and the existing security headers. `?design=living-systems` returned HTTP 200, `X-AWAR3-Variant: living-systems`, `no-store`, and `noindex`. `/legacy-mobile.js` and all four static variant routes returned HTTP 200; every static route retained `no-store` and `noindex`. These are local Wrangler results, not a production deployment.
 
 Closing cleanup: local Wrangler was stopped; its temporary log/state and repository scratch directories were removed; port 8788 and the Node/Workerd/Wrangler listener scan are clear. No production resource was stopped or changed.
+
+## 2026-08-03 23:20 EDT — Production deployment
+
+- Deployed source commit: `8a0be233462bd83dc2b2169d7751b7832c259900` (`Deploy exact rotating AWAR3 designs`). Previous/rollback source commit: `f49a1427d41931094e4e4bfa5e586f992ef85396`.
+- GitHub Actions: run `30874086073` completed successfully. The check/type-test/audit/build/asset-budget job and Cloudflare Pages deployment job both passed. GitHub emitted a non-blocking notice that several third-party actions targeting Node 20 were forced onto Node 24 by the runner.
+- Cloudflare Pages: project `awar3-astro-skunkworks`, production branch `main`; 14 files uploaded; Functions bundle, `_headers`, and `_routes.json` deployed. Deployment URL: `https://ad0eeb51.awar3-astro-skunkworks.pages.dev`.
+- Scheduled production root: `https://awar3.com/` returned HTTP 200, `X-AWAR3-Variant: field-station`, `Cache-Control: public, max-age=0, must-revalidate`, HSTS, restrictive self-hosted CSP, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, and the expected referrer policy.
+- Rotation and QA routes: all four `/variants/{variant}/` routes returned HTTP 200 with `no-store` and `X-Robots-Tag: noindex, nofollow`. A valid `?design=living-systems` override returned Living Systems with `no-store`/`noindex`; an invalid override resolved to scheduled Field Station with normal revalidation.
+- Domain/SEO: `https://www.awar3.com/` returned HTTP 301 to the canonical root. `robots.txt` returned the configured root allow/static-variant disallow policy after Cloudflare's managed content-signal preamble. `sitemap.xml` exposes only `https://awar3.com/`.
+- Asset integrity: favicon, stylesheet, mobile progressive-enhancement script, and all four WebPs returned HTTP 200 with correct MIME types. Each downloaded production WebP matched its approved local file byte-for-byte by SHA-256.
+- Device consistency: desktop and iPhone user-agent requests both returned `X-AWAR3-Variant: field-station`. Raw HTML differed only because Cloudflare generates randomized email-obfuscation tokens; after normalizing those tokens, the complete response bodies were byte-identical.
+- Link structure: every internal navigation fragment present in the live response has a matching element ID. Cloudflare's email-protection script and rewritten inquiry/email destinations are present. Interactive clicking and post-deployment visual inspection remain pending because the user's requested all-Node shutdown also terminated the in-app Browser helper; the Browser connection could not restart inside the same task. This limitation is not marked as a visual pass.
+- Rollback: restore the prior Cloudflare Pages deployment or revert source commit `8a0be233462bd83dc2b2169d7751b7832c259900` to baseline `f49a1427d41931094e4e4bfa5e586f992ef85396`, then rerun root/variant/header smoke tests.
