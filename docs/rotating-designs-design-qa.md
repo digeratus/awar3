@@ -330,3 +330,29 @@ Every candidate cell rendered one H1, ten sections, four navigation destinations
 - Representative local Browser captures are outside the repository at `../AWAR3_QA_Archive_2026-08-04/release-v1-local-browser/`.
 
 Release remains local-only until the scoped commit, GitHub Actions deployment, and production smoke/visual checks complete.
+
+## 2026-08-04 16:05 EDT — Production responsive QA
+
+### Production matrix and route smoke
+
+| Surface | Widths | Routes | Result |
+| --- | --- | ---: | --- |
+| Live in-app Browser | 390px | 8 public mobile candidates | 8/8 passed |
+| Live Chrome | 390, 768px | 8 public mobile candidates | 16/16 passed |
+| Live in-app Browser root | 390, 1440px | scheduled responsive root | 2/2 passed |
+| Live Chrome root | 390, 1440px | scheduled responsive root | 2/2 passed |
+
+All live candidate cells had one H1, ten sections, four navigation destinations, complete canonical copy, three unique loaded images, no clipping/overflow, working mailto or Cloudflare email-protection links, noindex metadata, and clean consoles. The Browser/Chrome root pair selected Airborne Workshop / Candidate B on both widths; mobile showed the candidate composition and desktop showed the exact board image.
+
+### Production visual evidence
+
+- Painted Browser top captures: `../AWAR3_QA_Archive_2026-08-04/release-v1-production/root-mobile-390-browser-top.jpg` and `root-desktop-1440-browser-top.jpg`.
+- Chrome top captures: `root-mobile-390-chrome-top.jpg` and `root-desktop-1440-chrome-top.jpg`.
+- Full-page diagnostics are retained alongside the top captures. The first full-page Browser capture was taken before image paint settled and appeared blank in the image viewer; after checking `complete/naturalWidth` and waiting for the image, the painted top captures were regenerated. The visual pass uses the regenerated captures.
+
+### Discrepancy/fix/retest notes
+
+- Live Airborne Workshop Candidate A initially reported only two completed images immediately after navigation. Two page-end scrolls plus a 1-second wait loaded the Rethink image; the final 8/8 Browser result and 16/16 Chrome result passed with all three images.
+- No copy, layout, security-header, navigation, overflow, or console discrepancies remained after retest.
+
+Production deployment is live at Cloudflare Pages deployment UUID `15e4d481-571c-44eb-ba47-6f628c5b21cb`, with commit `f93dda3` and GitHub Actions run `30945366914`.
