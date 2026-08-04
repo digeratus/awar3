@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { onRequest } from "../functions/_middleware";
 
 function createContext(url: string, method = "GET") {
@@ -24,6 +24,12 @@ function createContext(url: string, method = "GET") {
 }
 
 describe("root Pages Function", () => {
+  beforeAll(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-08-03T16:00:00Z"));
+  });
+  afterAll(() => vi.useRealTimers());
+
   it("passes non-root routes through", async () => {
     const { context, next, assetFetch } = createContext("https://awar3.com/variants/field-station/");
     const response = await onRequest(context);
@@ -35,8 +41,9 @@ describe("root Pages Function", () => {
   it("serves valid overrides with diagnostics, no-store, and noindex", async () => {
     const { context, assetFetch } = createContext("https://awar3.com/?design=living-systems");
     const response = await onRequest(context);
-    expect(new URL(assetFetch.mock.calls[0][0].url).pathname).toBe("/variants/living-systems/");
+    expect(new URL(assetFetch.mock.calls[0][0].url).pathname).toBe("/variants/living-systems/a/");
     expect(response.headers.get("X-AWAR3-Variant")).toBe("living-systems");
+    expect(response.headers.get("X-AWAR3-Candidate")).toBe("a");
     expect(response.headers.get("Cache-Control")).toBe("no-store");
     expect(response.headers.get("X-Robots-Tag")).toBe("noindex, nofollow");
   });
@@ -45,6 +52,7 @@ describe("root Pages Function", () => {
     const { context } = createContext("https://awar3.com/?design=javascript:alert(1)");
     const response = await onRequest(context);
     expect(response.headers.get("Cache-Control")).toBe("public, max-age=0, must-revalidate");
+    expect(response.headers.get("X-AWAR3-Candidate")).toBe("a");
     expect(response.headers.get("X-Robots-Tag")).toBeNull();
     expect(response.headers.get("Content-Security-Policy")).toContain("frame-ancestors 'none'");
     expect(response.headers.get("Strict-Transport-Security")).toContain("includeSubDomains");
@@ -55,6 +63,7 @@ describe("root Pages Function", () => {
     const { context } = createContext("https://awar3.com/?design=airborne-workshop", "HEAD");
     const response = await onRequest(context);
     expect(response.headers.get("X-AWAR3-Variant")).toBe("airborne-workshop");
+    expect(response.headers.get("X-AWAR3-Candidate")).toBe("a");
     expect(await response.text()).toBe("");
   });
 

@@ -7,7 +7,11 @@ export const VARIANTS = [
 
 export type Variant = (typeof VARIANTS)[number];
 
+export const CANDIDATES = ["a", "b"] as const;
+export type Candidate = (typeof CANDIDATES)[number];
+
 export const ANCHOR_DATE = "2026-08-03";
+export const CANDIDATE_ANCHOR_DATE = "2026-08-03";
 export const TIME_ZONE = "America/New_York";
 
 const formatter = new Intl.DateTimeFormat("en-US", {
@@ -19,6 +23,10 @@ const formatter = new Intl.DateTimeFormat("en-US", {
 
 export function isAllowedVariant(value: string | null): value is Variant {
   return VARIANTS.includes(value as Variant);
+}
+
+export function isAllowedCandidate(value: string | null): value is Candidate {
+  return CANDIDATES.includes(value as Candidate);
 }
 
 export function newYorkDateKey(value: Date | string | number = new Date()): string {
@@ -43,17 +51,22 @@ export function variantForDate(value: Date | string | number = new Date()): Vari
   return VARIANTS[index];
 }
 
+export function candidateForDate(value: Date | string | number = new Date()): Candidate {
+  const dayOffset = dateKeyToUtcDay(newYorkDateKey(value)) - dateKeyToUtcDay(CANDIDATE_ANCHOR_DATE);
+  return CANDIDATES[((dayOffset % CANDIDATES.length) + CANDIDATES.length) % CANDIDATES.length];
+}
+
 export function selectionForRequest(
   requestUrl: string | URL,
   value: Date | string | number = new Date()
-): { variant: Variant; override: boolean; dateKey: string } {
+): { variant: Variant; candidate: Candidate; override: boolean; dateKey: string } {
   const url = requestUrl instanceof URL ? requestUrl : new URL(requestUrl);
   const requested = url.searchParams.get("design");
   const dateKey = newYorkDateKey(value);
 
   if (isAllowedVariant(requested)) {
-    return { variant: requested, override: true, dateKey };
+    return { variant: requested, candidate: candidateForDate(value), override: true, dateKey };
   }
 
-  return { variant: variantForDate(value), override: false, dateKey };
+  return { variant: variantForDate(value), candidate: candidateForDate(value), override: false, dateKey };
 }

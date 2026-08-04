@@ -8,13 +8,15 @@ interface Props {
   description: string;
   variant: Variant;
   robots?: string;
+  skipTarget?: "desktop" | "candidate" | "responsive";
 }
 
 const {
   title,
   description,
   variant,
-  robots = "index,follow,max-image-preview:large"
+  robots = "index,follow,max-image-preview:large",
+  skipTarget = "desktop"
 } = Astro.props;
 
 const themeColors: Record<Variant, string> = {
@@ -44,8 +46,16 @@ const themeColors: Record<Variant, string> = {
     <title>{title}</title>
   </head>
   <body>
-    <a class="skip-link skip-link-desktop" href="#desktop-main">Skip to desktop design</a>
-    <a class="skip-link skip-link-mobile" href="#legacy-main">Skip to content</a>
+    {skipTarget === "candidate" ? (
+      <a class="skip-link skip-link-candidate" href="#work">Skip to mobile design content</a>
+    ) : skipTarget === "responsive" ? (
+      <a class="skip-link skip-link-responsive" href="#responsive-main">Skip to responsive design content</a>
+    ) : (
+      <>
+        <a class="skip-link skip-link-desktop" href="#desktop-main">Skip to desktop design</a>
+        <a class="skip-link skip-link-mobile" href="#legacy-main">Skip to content</a>
+      </>
+    )}
     <slot />
   </body>
 </html>

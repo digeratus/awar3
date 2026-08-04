@@ -1,0 +1,30 @@
+---
+import ResponsiveVariantPage from "../../../components/ResponsiveVariantPage.astro";
+import { mobileCandidates, type MobileCandidate } from "../../../lib/mobile-candidates";
+import { siteContent } from "../../../content/site";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { isVariant, variantNames, variants, type Variant } from "../../../lib/variants";
+
+export function getStaticPaths() {
+  return variants.flatMap((variant) =>
+    mobileCandidates.map((candidate) => ({ params: { variant, candidate }, props: { variant, candidate } }))
+  );
+}
+
+interface Props {
+  variant: Variant;
+  candidate: MobileCandidate;
+}
+
+const { variant, candidate } = Astro.props;
+if (!isVariant(variant)) throw new Error("Invalid responsive variant");
+---
+
+<BaseLayout
+  title={`${variantNames[variant]} | ${siteContent.metadata.title}`}
+  description={siteContent.metadata.description}
+  variant={variant}
+  skipTarget="responsive"
+>
+  <ResponsiveVariantPage variant={variant} candidate={candidate} />
+</BaseLayout>

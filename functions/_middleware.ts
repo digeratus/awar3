@@ -39,7 +39,7 @@ export async function onRequest(context: any): Promise<Response> {
   }
 
   const selection = selectionForRequest(url, new Date());
-  const variantUrl = new URL(`/variants/${selection.variant}/`, url);
+  const variantUrl = new URL(`/variants/${selection.variant}/${selection.candidate}/`, url);
   variantUrl.search = "";
 
   const assetRequest = new Request(variantUrl, {
@@ -50,6 +50,7 @@ export async function onRequest(context: any): Promise<Response> {
   const headers = applySecurityHeaders(new Headers(assetResponse.headers));
 
   headers.set("X-AWAR3-Variant", selection.variant);
+  headers.set("X-AWAR3-Candidate", selection.candidate);
   headers.set("X-AWAR3-Date", selection.dateKey);
 
   if (selection.override) {

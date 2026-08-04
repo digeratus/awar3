@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   ANCHOR_DATE,
+  CANDIDATE_ANCHOR_DATE,
+  CANDIDATES,
   VARIANTS,
+  candidateForDate,
   newYorkDateKey,
   selectionForRequest,
   variantForDate
@@ -21,6 +24,15 @@ describe("daily rotation", () => {
     expect(variantForDate("2026-08-05T16:00:00Z")).toBe("living-systems");
     expect(variantForDate("2026-08-06T16:00:00Z")).toBe("industrial-hybrid");
     expect(variantForDate("2026-08-07T16:00:00Z")).toBe("field-station");
+  });
+
+  it("alternates Board Stack and Fieldbook from the August 3 anchor", () => {
+    expect(CANDIDATE_ANCHOR_DATE).toBe("2026-08-03");
+    expect(CANDIDATES).toEqual(["a", "b"]);
+    expect(candidateForDate("2026-08-02T16:00:00Z")).toBe("b");
+    expect(candidateForDate("2026-08-03T16:00:00Z")).toBe("a");
+    expect(candidateForDate("2026-08-04T16:00:00Z")).toBe("b");
+    expect(candidateForDate("2026-08-05T16:00:00Z")).toBe("a");
   });
 
   it("changes at New York midnight during daylight saving time", () => {
@@ -52,9 +64,9 @@ describe("daily rotation", () => {
   it("allowlists valid overrides and ignores invalid values", () => {
     expect(
       selectionForRequest("https://awar3.com/?design=living-systems", "2026-08-03T16:00:00Z")
-    ).toMatchObject({ variant: "living-systems", override: true });
+    ).toMatchObject({ variant: "living-systems", candidate: "a", override: true });
     expect(
       selectionForRequest("https://awar3.com/?design=unknown", "2026-08-03T16:00:00Z")
-    ).toMatchObject({ variant: "field-station", override: false });
+    ).toMatchObject({ variant: "field-station", candidate: "a", override: false });
   });
 });

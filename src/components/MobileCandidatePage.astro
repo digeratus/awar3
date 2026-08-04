@@ -1,0 +1,191 @@
+---
+import { siteContent as content } from "../content/site";
+import { mobileCandidateNames, mobileThemes, type MobileCandidate } from "../lib/mobile-candidates";
+import { variantNames, type Variant } from "../lib/variants";
+import MobileCandidateArt from "./MobileCandidateArt.astro";
+
+interface Props {
+  variant: Variant;
+  candidate: MobileCandidate;
+  showCandidateLabel?: boolean;
+}
+
+const { variant, candidate, showCandidateLabel = true } = Astro.props;
+const theme = mobileThemes[variant];
+const mailto = `mailto:${content.contact.email}?subject=AWAR3%20confidential%20inquiry`;
+const rootStyle = [
+  `--mobile-paper:${theme.paper}`,
+  `--mobile-paper-alt:${theme.paperAlt}`,
+  `--mobile-ink:${theme.ink}`,
+  `--mobile-accent:${theme.accent}`,
+  `--mobile-accent-soft:${theme.accentSoft}`,
+  `--mobile-dark:${theme.dark}`,
+  `--mobile-dark-text:${theme.darkText}`,
+  `--mobile-line:${theme.line}`,
+  `--mobile-texture:${theme.texture}`
+].join(";");
+---
+
+<div
+  class={`mobile-candidate mobile-candidate-${variant} mobile-candidate-${candidate}`}
+  data-mobile-candidate={candidate}
+  data-variant={variant}
+  style={rootStyle}
+>
+  <header class="mobile-candidate-header">
+    <div class="mobile-candidate-shell mobile-candidate-header-inner">
+        <a class="mobile-candidate-brand" href="#top" aria-label="AWAR3 home">
+        <span class="mobile-candidate-mark" aria-hidden="true">A3</span>
+        <span>AWAR3</span>
+      </a>
+      <span class="mobile-candidate-status">{theme.label}</span>
+      <button
+        class="mobile-candidate-menu-button"
+        type="button"
+        data-mobile-menu-button
+        aria-controls="mobile-candidate-nav"
+        aria-expanded="false"
+        aria-label="Open navigation"
+      >
+        <span></span><span></span><span></span>
+      </button>
+      <nav id="mobile-candidate-nav" class="mobile-candidate-nav" data-mobile-nav aria-label="Mobile design navigation">
+        {content.navigation.map((item) => <a href={item.href}>{item.label}</a>)}
+      </nav>
+    </div>
+  </header>
+
+  <main id="mobile-candidate-main" class="mobile-candidate-main">
+    <section id="top" class="mobile-candidate-hero mobile-candidate-section">
+      <div class="mobile-candidate-shell mobile-candidate-hero-grid">
+        <div class="mobile-candidate-hero-copy">
+          <p class="mobile-candidate-eyebrow">{content.hero.eyebrow}</p>
+          {showCandidateLabel && (
+            <p class="mobile-candidate-series">{variantNames[variant]} / Candidate {candidate.toUpperCase()} · {mobileCandidateNames[candidate]}</p>
+          )}
+          <h1>{content.hero.title}</h1>
+          {content.hero.paragraphs.map((paragraph) => <p class="mobile-candidate-body">{paragraph}</p>)}
+          <p class="mobile-candidate-note">{content.hero.note}</p>
+          <div class="mobile-candidate-actions">
+            <a class="mobile-candidate-button mobile-candidate-button-primary" href={mailto}>{content.hero.primaryCta}<span aria-hidden="true">→</span></a>
+            <a class="mobile-candidate-button mobile-candidate-button-secondary" href="#work">{content.hero.secondaryCta}<span aria-hidden="true">↓</span></a>
+          </div>
+        </div>
+        <MobileCandidateArt variant={variant} kind="hero" class="mobile-candidate-art-hero" />
+      </div>
+      <div class="mobile-candidate-shell mobile-candidate-profile" aria-label="AWAR3 operating profile">
+        {content.hero.profile.map((item, index) => <span><b>0{index + 1}</b>{item}</span>)}
+      </div>
+    </section>
+
+    <section id="work" class="mobile-candidate-section mobile-candidate-paper-panel">
+      <div class="mobile-candidate-shell mobile-candidate-work-grid">
+        <div>
+          <p class="mobile-candidate-eyebrow">{content.realWork.eyebrow}</p>
+          <h2>{content.realWork.title}</h2>
+          {content.realWork.paragraphs.map((paragraph) => <p class="mobile-candidate-body">{paragraph}</p>)}
+        </div>
+        <MobileCandidateArt variant={variant} kind="detail" class="mobile-candidate-art-feature mobile-candidate-art-work" />
+      </div>
+    </section>
+
+    <section id="rethink" class="mobile-candidate-section mobile-candidate-opportunity">
+      <div class="mobile-candidate-shell mobile-candidate-opportunity-grid">
+        <div class="mobile-candidate-opportunity-copy">
+          <p class="mobile-candidate-eyebrow">{content.largerOpportunity.eyebrow}</p>
+          <h2>{content.largerOpportunity.title}</h2>
+          {content.largerOpportunity.paragraphs.map((paragraph, index) => (
+            <p class={index === 3 ? "mobile-candidate-quote" : "mobile-candidate-body"}>{paragraph}</p>
+          ))}
+        </div>
+        <MobileCandidateArt variant={variant} kind="rethink" class="mobile-candidate-art-feature mobile-candidate-art-rethink" />
+      </div>
+    </section>
+
+    <section class="mobile-candidate-section mobile-candidate-list-panel">
+      <div class="mobile-candidate-shell">
+        <p class="mobile-candidate-eyebrow">{content.areas.eyebrow}</p>
+        <div class="mobile-candidate-area-list">
+          {content.areas.items.map((item, index) => (
+            <article class="mobile-candidate-list-row">
+              <span class="mobile-candidate-index">0{index + 1}</span>
+              <div><h3>{item.title}</h3><p>{item.copy}</p></div>
+              <a href="#contact" aria-label={`Learn more about ${item.title}`}>→</a>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="mobile-candidate-section mobile-candidate-build-panel">
+      <div class="mobile-candidate-shell">
+        <p class="mobile-candidate-eyebrow">{content.builds.eyebrow}</p>
+        <div class="mobile-candidate-build-grid">
+          {content.builds.items.map((item, index) => (
+            <article class="mobile-candidate-build-card"><span>0{index + 1}</span><h3>{item.title}</h3><p>{item.copy}</p></article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="mobile-candidate-section mobile-candidate-why-panel">
+      <div class="mobile-candidate-shell mobile-candidate-why-grid">
+        <div>
+          <p class="mobile-candidate-eyebrow">{content.why.eyebrow}</p>
+          <h2>{content.why.title}</h2>
+          {content.why.paragraphs.map((paragraph) => <p class="mobile-candidate-body">{paragraph}</p>)}
+        </div>
+      </div>
+    </section>
+
+    <section class="mobile-candidate-section mobile-candidate-when-panel">
+      <div class="mobile-candidate-shell">
+        <p class="mobile-candidate-eyebrow">{content.bringIn.eyebrow}</p>
+        <ol class="mobile-candidate-when-list">
+          {content.bringIn.items.map((item, index) => <li><span>0{index + 1}</span><p>{item}</p></li>)}
+        </ol>
+      </div>
+    </section>
+
+    <section id="method" class="mobile-candidate-section mobile-candidate-method-panel">
+      <div class="mobile-candidate-shell">
+        <p class="mobile-candidate-eyebrow">{content.method.eyebrow}</p>
+        <h2>{content.method.title}</h2>
+        <div class="mobile-candidate-method-list">
+          {content.method.steps.map((step) => <article><span>{step.number}</span><h3>{step.title}</h3><p>{step.copy}</p></article>)}
+        </div>
+      </div>
+    </section>
+
+    <section class="mobile-candidate-section mobile-candidate-principles-panel">
+      <div class="mobile-candidate-shell mobile-candidate-principles-grid">
+        <div>
+          <p class="mobile-candidate-eyebrow">{content.principles.eyebrow}</p>
+          <h2>{content.principles.title}</h2>
+        </div>
+        <ol>{content.principles.items.map((item, index) => <li><span>0{index + 1}</span>{item}</li>)}</ol>
+      </div>
+    </section>
+
+    <section id="contact" class="mobile-candidate-section mobile-candidate-contact-panel">
+      <div class="mobile-candidate-shell mobile-candidate-contact-grid">
+        <div>
+          <p class="mobile-candidate-eyebrow">{content.contact.eyebrow}</p>
+          <h2>{content.contact.title}</h2>
+          {content.contact.paragraphs.map((paragraph) => <p class="mobile-candidate-body">{paragraph}</p>)}
+        </div>
+        <div class="mobile-candidate-contact-card">
+          <div class="mobile-candidate-contact-seal" aria-hidden="true"><span>A3</span><b>AWAR3</b><small>CONFIDENTIAL / READY TO FRAME</small></div>
+          <a class="mobile-candidate-button mobile-candidate-button-primary" href={mailto}>{content.contact.cta}<span aria-hidden="true">→</span></a>
+          <a class="mobile-candidate-email" href={`mailto:${content.contact.email}`}>{content.contact.email}</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="mobile-candidate-footer">
+    <div class="mobile-candidate-shell"><span>{content.footer.brand}</span><span>{content.footer.statement}</span><span>{content.footer.location}</span><a href="#top">Back to top ↑</a></div>
+  </footer>
+
+  <script is:inline src="/mobile-candidates.js" defer></script>
+</div>

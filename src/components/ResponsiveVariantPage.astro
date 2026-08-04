@@ -1,0 +1,28 @@
+---
+import ExactBoard from "./ExactBoard.astro";
+import MobileCandidatePage from "./MobileCandidatePage.astro";
+import { mobileCandidateNames, type MobileCandidate } from "../lib/mobile-candidates";
+import { variantNames, type Variant } from "../lib/variants";
+
+interface Props {
+  variant: Variant;
+  candidate: MobileCandidate;
+}
+
+const { variant, candidate } = Astro.props;
+---
+
+<div
+  id="responsive-main"
+  class="responsive-variant-page"
+  data-responsive-variant={variant}
+  data-responsive-candidate={candidate}
+  aria-label={`${variantNames[variant]} responsive design`}
+>
+  <div class="responsive-desktop-board">
+    <ExactBoard variant={variant} />
+  </div>
+  <div class="responsive-mobile-candidate" aria-label={`${variantNames[variant]} ${mobileCandidateNames[candidate]} mobile design`}>
+    <MobileCandidatePage variant={variant} candidate={candidate} showCandidateLabel={false} />
+  </div>
+</div>

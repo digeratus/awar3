@@ -1,0 +1,27 @@
+---
+import { mobileThemes, type MobileArtKind } from "../lib/mobile-candidates";
+import type { Variant } from "../lib/variants";
+
+interface Props {
+  variant: Variant;
+  kind: MobileArtKind;
+  class?: string;
+}
+
+const { variant, kind, class: className = "" } = Astro.props;
+const artwork = mobileThemes[variant].art[kind];
+---
+
+<div class={`mobile-candidate-art mobile-candidate-art-${kind} ${className}`}>
+  <picture>
+    <source srcset={artwork.avif} type="image/avif" />
+    <img
+      src={artwork.webp}
+      alt={artwork.alt}
+      width={artwork.width}
+      height={artwork.height}
+      loading={kind === "hero" ? "eager" : "lazy"}
+      decoding="async"
+    />
+  </picture>
+</div>

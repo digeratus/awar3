@@ -526,3 +526,160 @@ The untracked deployment-summary file remains unchanged.
 - Security conclusion: nothing publicly pushed provides an attacker with company access or a direct production-control credential. One low-impact privacy disclosure remains in the public release history: a few local workstation paths/tool identifiers and the host-derived Git author email. These do not grant access, but future release notes should use repository-relative paths and the GitHub noreply identity. Removing them from already-published history would require a deliberate history rewrite and was not performed.
 - Workflow hardening items recorded separately from confirmed exposure: protect `main`, enable GitHub vulnerability/Dependabot alerts, scope `deployments: write` only to the deploy job, disable checkout credential persistence in validation jobs, bind deployment to the validated artifact, and pin third-party Actions to reviewed full commit SHAs. These are defense-in-depth improvements; the review found no evidence that the push exposed a secret or that an upstream Action tag was compromised.
 - The in-app Browser control helper remains unavailable because the earlier user-authorized shutdown stopped its Node helper. The live HTTP/header check and the pre-deployment Browser visual matrix remain recorded evidence; restarting ChatGPT/Codex is required before another automated in-app Browser pass can run.
+
+## 2026-08-04 10:05 EDT — Mobile candidate branch and scope lock
+
+- Objective: implement the approved local-only Mobile Candidate Pass without changing desktop routes, root rotation, production headers, or live mobile fallback behavior.
+- Branch: created local `mobile-candidates` from commit `3651d50497f0deb11911e78635742bd6824cf...`. No GitHub push, pull request, Cloudflare preview, or production deployment was made.
+- Starting worktree: preserved the three pre-existing untracked Markdown files unchanged: `AWAR3_Astro_Cloudflare_Deployment_Summary_2026-04-26.md`, `design-qa 2.md`, and `docs/rotating-designs-design-qa 2.md`.
+- Runtime: locked dependency installation completed with bundled Node `v24.14.0`, pnpm `11.9.0`, Astro `6.4.8`, `@astrojs/check` `0.9.10`, TypeScript `5.9.3`, Vitest `4.1.10`, and Wrangler `4.118.0`. The first offline install failed because one tarball was absent from the local store; the approved networked retry completed. No credentials or private environment values were written.
+- Scope decision: eight routes only — `/mobile-candidates/{field-station|airborne-workshop|living-systems|industrial-hybrid}/{a|b}/`. Candidate A is the compressed board stack; Candidate B is the fieldbook composition. All routes are local noindex candidates and are not wired into `/` rotation.
+
+## 2026-08-04 10:17 EDT — Shared candidate structure and security correction
+
+- Files added: `src/components/MobileCandidatePage.astro`, `src/lib/mobile-candidates.ts`, `src/pages/mobile-candidates/[variant]/[candidate].astro`, `public/mobile-candidates.js`, and `tests/mobile-candidates.test.ts`.
+- Files changed: `src/layouts/BaseLayout.astro`, `src/styles/global.css`, and `scripts/check-asset-budget.mjs`.
+- Result: all eight pages consume `src/content/site.ts` directly for the complete Candidate 1B copy, section order, CTAs, anchors, and `info@awar3.com`. The shared tree renders one H1, ten canonical sections, semantic landmarks, skip navigation, visible focus, 44px controls, and reduced-motion behavior. The candidate route passes `skipTarget="candidate"` so it does not inherit nonexistent desktop/mobile skip targets.
+- Security correction retained: the first implementation used an inline menu script. Because the site CSP is `script-src 'self'`, it was moved to the same-origin `public/mobile-candidates.js` file. The final static HTML contains no inline script body; the external script opens/closes the menu and restores its accessible state after anchor navigation.
+- Asset gate: `scripts/check-asset-budget.mjs` now distinguishes strict production mode from `AWAR3_MOBILE_CANDIDATES=1` local candidate mode. Candidate-only raster files are rejected by default and allowed only with the explicit local flag.
+
+## 2026-08-04 10:29 EDT — Artwork crop correction and asset decision
+
+- Objective: keep the four supplied desktop boards as the only raster payload while making decorative mobile art crisp and free from accidental adjacent panel copy.
+- Asset decision: no new Image 2.0 raster assets were generated. The existing four optimized board WebPs remain the only art payload (`3.71 MiB` total); their source resolution is substantially above the rendered mobile slots. This avoids recreating the large asset increase that the user previously rejected.
+- Initial visual finding retained: naïve background crops exposed neighboring board labels and marketing copy inside the hero, work, and deep-section slots. The crop strategy was replaced with per-slot, per-variant positions (`hero`, `work`, `rethink`, `why`, and `contact`) so the visible artwork follows each supplied board's subject framing. Technical diagram labels that are part of the supplied artwork remain intentionally inside those illustrations; page copy and CTAs stay selectable HTML.
+- Responsive correction retained: Candidate B's higher-specificity two-column rules initially overrode the mobile single-column media query, causing the fieldbook hero to collapse into a narrow text column beside the image at 390px. Explicit Candidate B single-column overrides were added below 760px.
+- Tablet correction retained: at 768–850px the taller hero slot revealed the next board panel title. A 761–900px rule increases the background scale for hero, feature, and contact slots, keeping the focal scene sharp and preventing the adjacent panel title from entering the art frame.
+
+## 2026-08-04 10:41 EDT — Local build and automated validation
+
+- Commands/tools: `pnpm check`, `pnpm test`, `pnpm build`, `pnpm run check:assets`, and `git diff --check`, all run with the bundled Node runtime; local Wrangler Pages preview served the built `dist/` directory on port `8788`.
+- Results: Astro check `0 errors / 0 warnings / 0 hints`; Vitest `4 files / 17 tests passed`; static build `13 pages` (the existing root, four desktop variant routes, and eight mobile candidates); asset gate passed with `3.71 MiB` desktop boards and `3.91 MiB` production build; `git diff --check` passed.
+- Candidate integrity tests cover the exact A/B allowlist, four-variant route generation, canonical content expressions, no-inline-script CSP compatibility, and the absence of candidate raster assets in the production tree.
+- Failed local preview attempt retained: the first sandboxed Wrangler start could not write its user log and could not bind its inspector/watchers (`EPERM`, `EMFILE`, and loopback permission errors). The retry used the approved elevated local-preview permission and started successfully on `127.0.0.1:8788`; no production resource was affected.
+
+## 2026-08-04 10:45 EDT — In-app Browser and Chrome candidate QA
+
+- In-app Browser matrix: eight routes × five widths (`320`, `390`, `430`, `768`, `850px`) = `40/40` completed. Every cell had one H1, ten sections, five art slots with a resolved background, four matching navigation destinations, zero horizontal overflow, and zero console errors/warnings.
+- Copy parity: normalized main-content snapshots were identical for all eight routes at 390px (`6,080` characters after removing only the candidate-identification line). The canonical `src/content/site.ts` content is present without breakpoint hiding, shortening, duplication, or replacement.
+- Interaction check: at 390px the menu button resolved uniquely, opened with `aria-expanded="true"`, exposed all four destinations, navigated to `#work`, closed the menu, and placed the work section at the viewport top. Mailto CTAs and skip-link targets were verified in the DOM snapshot.
+- Chrome matrix: eight routes × `390` and `768px` = `16/16` cross-checks. Every cell had one H1, ten sections, five art slots, four nav links, zero overflow, and zero console errors/warnings.
+- Visual review: Candidate A and B hero/section captures were inspected in the in-app Browser at mobile and tablet widths. Candidate B now preserves a single-column fieldbook flow below 760px; tablet art is scaled to retain a clean focal subject. Representative captures are saved outside the deployable repository under `../AWAR3_QA_Archive_2026-08-04/mobile-candidates/` (32 PNGs: eight routes × Browser/Chrome × 390/768).
+- Release state: local-only and unpublished. The Wrangler preview remains available for user inspection; no Git commit, GitHub push, Cloudflare deployment, or root-rotation change was performed.
+
+## Mobile candidate file-change ledger continuation
+
+| Path | Change | Purpose |
+| --- | --- | --- |
+| `src/components/MobileCandidatePage.astro` | Added | Shared semantic A/B candidate page using canonical copy and variant themes. |
+| `src/lib/mobile-candidates.ts` | Added | A/B allowlist, names, palettes, board sources, and per-slot crop positions. |
+| `src/pages/mobile-candidates/[variant]/[candidate].astro` | Added | Eight static noindex candidate routes. |
+| `public/mobile-candidates.js` | Added | Same-origin CSP-compatible mobile navigation enhancement. |
+| `tests/mobile-candidates.test.ts` | Added | Route, copy-source, CSP, and production-asset integrity tests. |
+| `src/layouts/BaseLayout.astro` | Modified | Candidate-specific skip-link target without changing existing desktop/legacy behavior. |
+| `src/styles/global.css` | Modified | Candidate A/B layouts, four visual systems, responsive media rules, focus, and reduced-motion styling. |
+| `scripts/check-asset-budget.mjs` | Modified | Explicit local candidate asset mode and strict production rejection. |
+| `AWAR3_QA_Archive_2026-08-04/mobile-candidates/` | Added outside repo | Browser/Chrome evidence captures; not shipped to GitHub or Cloudflare. |
+
+No tracked desktop board, root rotation function, Cloudflare header, or live fallback file was removed or modified by this candidate pass. No generated asset was accepted, so there is no new Image 2.0 asset record beyond the explicit no-generation decision above.
+
+## 2026-08-04 10:55 EDT — Local gallery handoff
+
+- Added `src/pages/mobile-candidates/index.astro` as a noindex local gallery linking to all eight candidates. It reuses the variant metadata, shows the A/B naming, and keeps the canonical contact email selectable.
+- A first gallery screenshot exposed a low-contrast inherited global heading color on the navy gallery canvas. The gallery H1 was explicitly set to the light paper color, then Astro check, Vitest, production build, asset gate, and `git diff --check` were rerun successfully.
+- The in-app Browser is left on `http://127.0.0.1:8788/mobile-candidates/` for review. The Wrangler preview is local-only; no deployment or GitHub publication occurred.
+## 2026-08-04 — Supersede crop-based mobile art
+
+- Objective: Respond to visual review of the first eight local mobile candidates.
+- Finding: The candidates reused four desktop full-page composite boards as CSS crops. At mobile sizes, those crops exposed unrelated labels, panel borders, and neighboring artwork, so the images did not feel designed for the mobile composition.
+- Decision: Supersede the crop-based art approach with a dedicated mobile image family for each design. Generate purpose-built artwork before rebuilding the mobile layouts around the new image slots. Keep the four desktop routes, desktop board files, daily rotation, Cloudflare behavior, GitHub state, and live mobile fallback unchanged.
+- Scope: Local-only `mobile-candidates` branch; no GitHub push and no Cloudflare deployment.
+- Correction: Existing crop-based candidate CSS/assets remain in history as a failed attempt; the next pass will replace only the candidate art path and responsive composition.
+
+## 2026-08-04 11:15–12:15 EDT — Dedicated mobile art pass
+
+- Objective: create a coherent mobile image family before redesigning the eight local candidates.
+- Tool: built-in ChatGPT Image 2.0 image-generation workflow. No source copy, labels, logos, diagrams, navigation, CTAs, or watermarks were baked into any generated image; all meaningful wording remains HTML from `src/content/site.ts`.
+- Asset strategy: two images per design (hero and supporting detail), shared by Candidates A and B. This avoids the failed desktop-board crop approach and keeps the candidate art set small enough to review and optimize.
+- Generation prompts (applied once per design family, with the detail prompt using the matching hero as its visual reference):
+  - Field Station hero: “sharp, professional mobile hero illustration … compact alpine research outpost beside a clear stream, timber operations cabin, solar panels, field instruments, distant mountains; portrait 4:5; cream paper, forest green, alpine blue, warm rust; crisp hand-inked field-notes detail; no text or signage.”
+  - Field Station detail: “same Field Station family … interior fieldwork planning shelter opening onto an alpine stream, timber workbench, maps and instruments, weather mast; portrait 4:5; match hero linework/palette; maps contain no readable writing; no text or logos.”
+  - Airborne Workshop hero: “sharp, professional mobile hero illustration … compact engineering airship workshop above a coastal town and blue water, exposed decks, propeller, cables, test craft; portrait 4:5; parchment, sky blue, navy, rust, brass; crisp aviation field-notes detail; no text.”
+  - Airborne Workshop detail: “same Airborne Workshop family … interior work deck with suspended drafting table, propeller test rig, cable runs, instruments, and coastline below; portrait 4:5; match hero; no text or signage.”
+  - Living Systems hero: “sharp, professional mobile hero illustration … ecological sensing station with glasshouse, water channels, field sensors, solar array, observation platform in a botanical landscape; portrait 4:5; warm paper, botanical green, sage, lake blue, terracotta; crisp botanical field-notes detail; no text.”
+  - Living Systems detail: “same Living Systems family … botanical workroom with plant samples, instruments, glasshouse frame, water channels, and sensors outside; portrait 4:5; match hero; no readable writing, text, or logos.”
+  - Industrial Hybrid hero: “sharp, professional mobile hero illustration … mechanical operations test bay with rugged machine core, cable trays, control console, diagnostic instruments, and industrial yard; portrait 4:5; navy, cream, rust, slate blue, brass; crisp blueprint/technical detail; no text.”
+  - Industrial Hybrid detail: “same Industrial Hybrid family … secure systems integration room with modular workbench, mechanical cross-section model, cable trays, test instruments, heavy door to machine bay; portrait 4:5; match hero; no text or signage.”
+- Native masters inspected: Field Station hero/detail `1122×1402`; Airborne hero `1003×1568`, detail `1122×1402`; Living Systems hero `1003×1568`, detail `1122×1402`; Industrial hero `1003×1568`, detail `887×1774`. Each accepted master had a crisp focal subject, coherent geometry, visible detail at native resolution, and no accidental typography or watermark.
+- Optimization: copied only accepted outputs into `public/mobile-candidates/assets/`; converted PNG masters to AVIF (quality 48, effort 7) and WebP (quality 75, effort 6) with Sharp 0.35.3, then removed project-local PNG masters. Final candidate asset set is 16 files / approximately 3.8 MiB total; generated masters remain outside the repository in the Codex generated-image archive.
+- Final paths and use:
+
+  | Design | Hero AVIF/WebP | Detail AVIF/WebP | Used in |
+  | --- | --- | --- | --- |
+  | Field Station | `public/mobile-candidates/assets/field-station-hero.{avif,webp}` | `public/mobile-candidates/assets/field-station-detail.{avif,webp}` | Hero panel and work/rethink supporting panels for both candidates |
+  | Airborne Workshop | `public/mobile-candidates/assets/airborne-workshop-hero.{avif,webp}` | `public/mobile-candidates/assets/airborne-workshop-detail.{avif,webp}` | Hero panel and work/rethink supporting panels for both candidates |
+  | Living Systems | `public/mobile-candidates/assets/living-systems-hero.{avif,webp}` | `public/mobile-candidates/assets/living-systems-detail.{avif,webp}` | Hero panel and work/rethink supporting panels for both candidates |
+  | Industrial Hybrid | `public/mobile-candidates/assets/industrial-hybrid-hero.{avif,webp}` | `public/mobile-candidates/assets/industrial-hybrid-detail.{avif,webp}` | Hero panel and work/rethink supporting panels for both candidates |
+
+- Source changes: added `src/components/MobileCandidateArt.astro`, replaced crop metadata in `src/lib/mobile-candidates.ts` with explicit asset metadata and alt text, and rebuilt `src/components/MobileCandidatePage.astro` around full uncropped `<picture>` panels. Candidate A remains copy-first Board Stack; Candidate B remains art-first Fieldbook. A contact seal replaces the repeated contact crop so the page has two purposeful image moments rather than repeated desktop fragments.
+- Responsive correction: raised the mobile composition breakpoint to `900px`. At 320–850px the candidates use deliberate single-column image/text stacking, while A/B still differ in order and panel rhythm. This keeps the mobile art family visible without forcing a crowded tablet two-column crop.
+- Asset gate correction: `scripts/check-asset-budget.mjs` now allows candidate raster files and a 12 MiB local build only when `AWAR3_MOBILE_CANDIDATES=1`; strict production mode still rejects candidate assets and the 4.10 MiB production budget remains unchanged.
+- Build/test results: Astro check passed (24 files, 0 diagnostics); Vitest passed (4 files, 17 tests); local candidate asset gate passed (desktop boards 3.71 MiB, candidate build 7.65 MiB / 12 MiB, 16 candidate assets); `git diff --check` passed. Strict production asset gate intentionally failed with the expected candidate-only rejection, so these routes remain unpublished.
+- Browser QA: in-app Browser completed `40/40` route/viewport cells at `320`, `390`, `430`, `768`, and `850px`; every cell had one H1, ten sections, four navigation links, three image elements with explicit dimensions/alt text, no hidden canonical copy, no horizontal overflow, and no console warnings/errors. After scrolling to the page end, all lazy images loaded with `naturalWidth > 0` at every tested width. Normalized canonical copy parity across all eight routes at `390px` was identical (`6,215` characters after removing only the candidate-identification line). Menu open/close and `#work` anchor navigation passed.
+- Chrome QA: `16/16` route/viewport cells at `390` and `768px`; after page-end scroll all images completed with `naturalWidth > 0`, four navigation links were present, ten sections and one H1 rendered, overflow was false, and console warnings/errors were empty.
+- Evidence: final representative captures saved outside the repository under `../AWAR3_QA_Archive_2026-08-04/mobile-art-pass/` (32 PNGs: Browser 390px and Chrome 768px for all eight candidates, including final-revision filenames).
+- Release state: still local-only on `mobile-candidates`; no commit, GitHub push, Cloudflare deployment, desktop route change, rotation change, or live fallback change.
+
+## 2026-08-04 — Third-image completion begins
+
+- Objective: add the missing unique Rethink-panel image for each of the four local mobile design families.
+- Confirmed source state: the current candidate sequence is `hero → detail → detail`; only the Rethink panel repeats the approved supporting detail image. Existing hero/detail assets, copy, layout structure, desktop routes, rotation, and deployment state are approved and will remain unchanged.
+- Decision: generate four new text-free Image 2.0 Rethink scenes, optimize each to AVIF/WebP, wire only the Rethink panel to `kind="rethink"`, and re-run the full local Browser/Chrome verification before presenting the gallery again.
+- Scope: local-only `mobile-candidates` branch. No commit, GitHub push, Cloudflare preview, or production deployment is authorized in this pass.
+
+## 2026-08-04 13:13 EDT — Third-image completion accepted locally
+
+- Objective: finish the mobile image family with one unique, purpose-built Rethink-panel scene per design. Existing hero/detail art, canonical copy, layout structure, desktop routes, root rotation, Cloudflare behavior, GitHub state, and live mobile behavior remain unchanged.
+- Generation workflow: built-in ChatGPT Image 2.0, with each current approved detail WebP supplied as the style reference. All four accepted masters were inspected at native resolution before optimization. Meaningful text remains HTML; no labels, logos, diagrams, signage, watermarks, or CTAs were accepted in the raster art.
+- Accepted generation records:
+
+  | Design | Prompt / composition | Native master | Result and final use |
+  | --- | --- | --- | --- |
+  | Field Station | “Alpine operations overlook with a connected mountain stream, visible footpaths, field instruments, sensor posts, small station infrastructure, and a distant operations shelter; portrait 4:5; calm left edge; parchment, forest green, slate blue, rust; no text.” | `exec-7abc71e3-572a-425b-82a5-33292f8d1153.png`, `1003×1568` | Accepted: crisp mountain, stream, instruments, and paths; no accidental typography. Rethink panel. |
+  | Airborne Workshop | “Airborne coordination/navigation deck with instruments, route-planning surface without readable marks, tethered equipment, rigging, and coastal town/sea beyond; portrait 4:5; calm left edge; sky blue, parchment, navy, copper; no text.” | `exec-233afaa9-daec-44a5-a2fb-9f66628c9308.png`, `1003×1568` | Accepted: sharp deck hardware, navigation instruments, and coastal context; blank planning surface. Rethink panel. |
+  | Living Systems | “Interconnected watershed and ecological monitoring landscape with linked habitats, flowing water channels, wetland pools, plants, habitat structures, and discreet sensor nodes; portrait 4:5; calm left edge; warm paper, botanical greens, terracotta, slate water; no text.” | `exec-68ee6cb7-ba29-4a6a-b5cd-116963ce5310.png`, `1003×1568` | Accepted: crisp water, plants, habitat links, and sensor nodes; no accidental typography. Rethink panel. |
+  | Industrial Hybrid | “Systems-control and integration floor with linked machine modules, central console, cable trunks, test fixtures, gauges, and subsystem connections; portrait 4:5; calm dark left edge; navy, cream, rust, cobalt; blank non-linguistic displays; no text.” | `exec-686fbf26-67c3-4452-a8ec-394bee93f93d.png`, `1122×1402` | Accepted after regeneration: crisp machinery and cable routing with blank abstract displays. Rethink panel. |
+
+- Failed attempt retained: `exec-1dd6f579-ea00-4d6d-8311-30989d8aad79.png` (Industrial Hybrid) was rejected because tiny console/floor glyphs could read as accidental text. It was not copied into the repository or optimized. The stricter blank-display prompt produced the accepted replacement above.
+- Optimization: each accepted master was converted with Sharp 0.35.3 using WebP `quality: 75, effort: 6` and AVIF `quality: 48, effort: 7`; PNG masters were removed from the repository after conversion. Final Rethink dimensions are Field Station `1003×1568`, Airborne Workshop `1003×1568`, Living Systems `1003×1568`, and Industrial Hybrid `1122×1402`. The eight new files total approximately `1.7 MiB`.
+- Asset count correction: the existing set had 16 files (four designs × hero/detail × AVIF/WebP). Adding four new masters in both formats adds eight files, so the correct resulting set is 24 files—not 20. The implementation and integrity test enforce the required two-format set of 24; the plan’s “20” count was internally inconsistent with its AVIF + WebP requirement.
+- Source changes: extended `MobileArtKind` with `rethink`; added Rethink metadata/alt text and paths for all four themes; changed only the Rethink `<MobileCandidateArt>` call from `kind="detail"` to `kind="rethink"`; updated candidate asset-integrity tests from 16 to 24 and require hero/detail/rethink pairs. No desktop/live source file changed.
+- File-change ledger continuation:
+
+  | Path | Change | Purpose |
+  | --- | --- | --- |
+  | `public/mobile-candidates/assets/{field-station,airborne-workshop,living-systems,industrial-hybrid}-rethink.{avif,webp}` | Added | Optimized, purpose-built Rethink artwork; local candidate-only assets. |
+  | `src/lib/mobile-candidates.ts` | Modified | Add `rethink` art kind, dimensions, URLs, and accessible alt text. |
+  | `src/components/MobileCandidatePage.astro` | Modified | Use the unique Rethink asset in both A/B candidates. |
+  | `tests/mobile-candidates.test.ts` | Modified | Enforce 24 two-format assets and unique Rethink wiring. |
+  | `AWAR3_QA_Archive_2026-08-04/mobile-art-pass-v2/` | Added outside repo | Browser top-viewport and Chrome full-page evidence for all eight routes. |
+
+- Automated results: Astro check `0 errors / 0 warnings / 0 hints` (24 files); Vitest `4 files / 17 tests passed`; static build `14 pages`; local candidate asset gate passed (`24` files, `9.37 MiB / 12 MiB` local build); `git diff --check` passed. Strict production asset gate intentionally failed with candidate-only assets, `24 / 0` strict candidate count, and the unchanged 4.10 MiB production budget, confirming publication remains blocked.
+- In-app Browser QA: `40/40` cells passed for all eight routes at `320`, `390`, `430`, `768`, and `850px`. Every cell had one H1, ten sections, four navigation links, three unique loaded image URLs per design after page-end scroll, explicit image dimensions/alt text, no hidden canonical sections, no horizontal overflow, and no console errors/warnings. Normalized canonical main-copy snapshots were identical across all eight routes (`6,136` characters after removing only the candidate-identification line).
+- Chrome QA: `16/16` cells passed for all eight routes at `390` and `768px`; page-end lazy images loaded, three URLs were unique, copy/section structure matched, overflow was absent, and console warnings/errors were empty.
+- Interaction/accessibility checks: unique menu control opened and exposed four destinations, Work anchor resolved to `#work` and closed the menu, canonical `mailto:info@awar3.com` inquiry links remained present, skip-link/main/nav landmarks were present, and the reduced-motion stylesheet branch remained active. The Browser viewport capture at 390px and Chrome full-page captures at 768px were visually inspected; all four new Rethink scenes remain sharp and cohesive in their actual slots.
+- Evidence: `/Users/riceandrobots/Library/Mobile Documents/com~apple~CloudDocs/Files/AWAR3_site/AWAR3_QA_Archive_2026-08-04/mobile-art-pass-v2/` contains 16 Browser captures (eight top-viewport plus eight post-scroll full-page diagnostics) and eight Chrome full-page captures, 24 PNGs total, including lazy-image evidence.
+- Release state: local-only on `mobile-candidates`. No commit, push, preview deployment, production deployment, rotation change, desktop board change, or live mobile change occurred. Local Wrangler remains available on `127.0.0.1:8788`; the gallery handoff will be left open for review.
+
+## 2026-08-04 15:46 EDT — Responsive root release implementation and local verification
+
+- Objective: implement the approved release plan without changing the four desktop board designs, canonical copy, or existing desktop variant routes. The production root now serves the scheduled desktop board above 850px and the same design family's scheduled mobile candidate at 850px and below.
+- Schedule decision: the existing New York date-based variant sequence remains unchanged. A new date-based candidate sequence is anchored on `2026-08-03`: Candidate A / Board Stack on August 3, Candidate B / Fieldbook on August 4, then alternate daily. Selection is based only on the New York calendar date and is independent of viewport, user agent, cookies, and personalization.
+- Source changes: added `CANDIDATES`, `candidateForDate`, and candidate diagnostics to `functions/lib/rotation.ts`; the root Pages Function now fetches `/variants/{variant}/{candidate}/` and returns `X-AWAR3-Variant`, `X-AWAR3-Candidate`, and `X-AWAR3-Date`. Added `ResponsiveVariantPage.astro`, eight static responsive routes, responsive breakpoint presentation, and a responsive skip target. Existing `/variants/{variant}/` desktop QA routes and `/mobile-candidates/{variant}/{a|b}/` review routes remain reachable and noindex.
+- Asset-gate decision: promoted exactly the four desktop WebPs plus 24 approved mobile AVIF/WebP files (hero/detail/rethink for each of four designs). Production budget is now 12 MiB; the gate rejects any additional raster set, source assets, or QA files. No candidate PNG masters were added.
+- Test correction: a deterministic function-test clock was added at the August 3 anchor so assertions do not drift with the current date. No user data, secrets, tokens, or private environment values were logged.
+- Automated checks: first pass exposed an inverted mobile-raster allowlist condition and non-deterministic date assertions; both were corrected. Final local result: Astro check 0 diagnostics (26 files), Vitest 19/19, static build 22 pages, production asset gate 9.51 MiB / 12 MiB with 24/24 candidate files, and `git diff --check` clean.
+- Browser verification: local Wrangler Pages preview at `http://127.0.0.1:8788/`. In-app Browser completed 40/40 candidate cells at 320, 390, 430, 768, and 850px. All cells passed one H1, ten sections, four navigation links, three unique loaded image URLs after page-end scrolling, complete copy, no hidden sections, no overflow, and clean console logs. Normalized copy was stable across widths for every candidate. Root checks passed at 390px (mobile candidate visible, board hidden) and 1440px (board visible, mobile candidate hidden), with matching scheduled `airborne-workshop` / Candidate B selection on the current New York date. Menu, four-destination exposure, `#work` anchor, mailto links, and skip link passed.
+- Chrome verification: Chrome completed 16/16 candidate cells at 390 and 768px after a two-step page-end scroll; all cells passed the same image, copy, structure, overflow, navigation, and console checks. A first scroll-only attempt left lazy images pending; the retest used a second page-end scroll and passed. This correction is preserved here rather than silently discarded.
+- Evidence: eight representative Browser full-page captures are in `AWAR3_QA_Archive_2026-08-04/release-v1-local-browser/` outside the repository. The current local gallery/preview remains available for handoff; preserved untracked deployment-summary Markdown files remain untouched.
+- Release state: implementation is verified locally but not yet committed, pushed, or deployed. Next action is scoped staging, the full CI-equivalent audit/build, direct `main` push, then Cloudflare production smoke and post-deployment Browser/Chrome checks.

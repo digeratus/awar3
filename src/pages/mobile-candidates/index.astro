@@ -1,0 +1,141 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { mobileCandidates, mobileCandidateNames, mobileThemes } from "../../lib/mobile-candidates";
+import { variants, variantNames } from "../../lib/variants";
+import { siteContent } from "../../content/site";
+---
+
+<BaseLayout
+  title="AWAR3 mobile candidate gallery"
+  description="Local-only AWAR3 mobile candidate gallery."
+  variant="industrial-hybrid"
+  robots="noindex,nofollow,noarchive"
+  skipTarget="candidate"
+>
+  <main id="work" class="mobile-gallery">
+    <div class="mobile-gallery-shell">
+      <p class="mobile-gallery-eyebrow">LOCAL REVIEW / MOBILE CANDIDATES</p>
+      <h1>Choose the mobile direction for each design.</h1>
+      <p class="mobile-gallery-intro">Eight unpublished candidates share the canonical AWAR3 copy. Open a card to review the full responsive page at the local Wrangler preview.</p>
+      <div class="mobile-gallery-grid">
+        {variants.map((variant) => (
+          <section class="mobile-gallery-variant" style={`--gallery-accent:${mobileThemes[variant].accent};--gallery-paper:${mobileThemes[variant].paper};`}>
+            <p class="mobile-gallery-variant-label">{variantNames[variant]}</p>
+            <h2>{mobileThemes[variant].label}</h2>
+            <div class="mobile-gallery-candidate-grid">
+              {mobileCandidates.map((candidate) => (
+                <a class="mobile-gallery-card" href={`/mobile-candidates/${variant}/${candidate}/`}>
+                  <span class="mobile-gallery-card-tag">Candidate {candidate.toUpperCase()}</span>
+                  <strong>{mobileCandidateNames[candidate]}</strong>
+                  <span>Open full page →</span>
+                </a>
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
+      <p class="mobile-gallery-note">Canonical contact: <a href={`mailto:${siteContent.contact.email}`}>{siteContent.contact.email}</a>. These routes are local-only and noindex.</p>
+    </div>
+  </main>
+  <style>
+    .mobile-gallery {
+      min-height: 100vh;
+      padding: clamp(3rem, 8vw, 7rem) 0;
+      color: #f4ecdc;
+      background: #062536;
+      font-family: "Avenir Next", "Inter", "Helvetica Neue", Arial, sans-serif;
+    }
+    .mobile-gallery-shell {
+      width: min(1120px, calc(100% - 2rem));
+      margin: 0 auto;
+    }
+    .mobile-gallery-eyebrow,
+    .mobile-gallery-variant-label,
+    .mobile-gallery-card-tag {
+      color: #d37a5f;
+      font-size: .78rem;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .mobile-gallery h1,
+    .mobile-gallery h2,
+    .mobile-gallery p {
+      margin: 0;
+    }
+    .mobile-gallery h1 {
+      max-width: 13ch;
+      margin-top: .8rem;
+      color: #f4ecdc;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(3rem, 8vw, 6.5rem);
+      line-height: .94;
+    }
+    .mobile-gallery-intro {
+      max-width: 58ch;
+      margin-top: 1.4rem;
+      color: #d9e1df;
+      font-size: 1.05rem;
+      line-height: 1.65;
+    }
+    .mobile-gallery-grid {
+      display: grid;
+      gap: 1rem;
+      margin-top: 3rem;
+    }
+    .mobile-gallery-variant {
+      padding: 1.4rem;
+      border: 2px solid color-mix(in srgb, var(--gallery-accent) 75%, white);
+      background: var(--gallery-paper);
+      color: #112e43;
+    }
+    .mobile-gallery-variant h2 {
+      margin-top: .45rem;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.5rem, 3vw, 2.4rem);
+    }
+    .mobile-gallery-candidate-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: .8rem;
+      margin-top: 1.1rem;
+    }
+    .mobile-gallery-card {
+      min-height: 8rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: .65rem;
+      padding: 1rem;
+      border: 2px solid #112e43;
+      color: #112e43;
+      background: color-mix(in srgb, var(--gallery-paper) 72%, white);
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+    .mobile-gallery-card strong {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.5rem;
+    }
+    .mobile-gallery-card > span:last-child {
+      color: var(--gallery-accent);
+      font-weight: 900;
+    }
+    .mobile-gallery-card:hover,
+    .mobile-gallery-card:focus-visible {
+      transform: translateY(-2px);
+      box-shadow: .4rem .4rem 0 var(--gallery-accent);
+    }
+    .mobile-gallery-note {
+      margin-top: 2rem !important;
+      color: #b5c9ca;
+      font-size: .9rem;
+    }
+    .mobile-gallery-note a { color: #f0a58b; }
+    @media (max-width: 500px) {
+      .mobile-gallery-candidate-grid { grid-template-columns: 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .mobile-gallery-card { transition: none; }
+    }
+  </style>
+</BaseLayout>

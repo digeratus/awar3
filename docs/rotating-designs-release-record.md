@@ -157,3 +157,49 @@ Closing cleanup: local Wrangler was stopped; its temporary log/state and reposit
 - Device consistency: desktop and iPhone user-agent requests both returned `X-AWAR3-Variant: field-station`. Raw HTML differed only because Cloudflare generates randomized email-obfuscation tokens; after normalizing those tokens, the complete response bodies were byte-identical.
 - Link structure: every internal navigation fragment present in the live response has a matching element ID. Cloudflare's email-protection script and rewritten inquiry/email destinations are present. Interactive clicking and post-deployment visual inspection remain pending because the user's requested all-Node shutdown also terminated the in-app Browser helper; the Browser connection could not restart inside the same task. This limitation is not marked as a visual pass.
 - Rollback: restore the prior Cloudflare Pages deployment or revert source commit `8a0be233462bd83dc2b2169d7751b7832c259900` to baseline `f49a1427d41931094e4e4bfa5e586f992ef85396`, then rerun root/variant/header smoke tests.
+
+## 2026-08-04 — Mobile candidate release gate (unpublished)
+
+- Scope: eight local-only mobile candidates under `/mobile-candidates/{variant}/{a|b}/`. Candidate A is Board Stack; Candidate B is Fieldbook. Desktop board routes, root rotation, Cloudflare headers, and live mobile fallback remain unchanged.
+- Validation: Astro check passed with 0 diagnostics; Vitest passed 17/17; static build produced 13 pages; asset budget passed at 3.71 MiB of desktop boards and 3.91 MiB for the built output; `git diff --check` passed.
+- Browser validation: in-app Browser `40/40` cells passed at 320, 390, 430, 768, and 850px. Chrome `16/16` cross-checks passed at 390 and 768px. Copy parity, one H1, ten sections, navigation, anchors, mailto links, focus/menu behavior, reduced motion, overflow, and console checks passed.
+- Asset decision: no new raster assets were generated or added. Existing optimized desktop WebPs are cropped at responsive slot positions; the candidate-only asset gate remains explicit and production mode remains strict.
+- Evidence: 32 representative Browser/Chrome captures are saved in the adjacent dated QA archive `AWAR3_QA_Archive_2026-08-04/mobile-candidates/` and are not part of the deployable repository.
+- Release state: no Git commit, GitHub push, pull request, Cloudflare preview, or production deployment. User approval of one candidate per variant is required before any publication or rotation change.
+- Rollback: no external rollback is needed. Delete/revert the local `mobile-candidates` branch changes if the exploration is abandoned; the published `main` branch and active Cloudflare deployment remain the prior desktop release.
+
+### Gallery handoff
+
+- Added the local-only noindex `/mobile-candidates/` gallery so the user can select one candidate per design without a public selector, cookie, analytics, GitHub push, or Cloudflare deployment.
+- The local in-app Browser is intentionally left on the gallery route. Publication remains gated on explicit approval of one A/B candidate for each of the four designs.
+
+## 2026-08-04 11:15–12:15 EDT — Mobile art pass remains unpublished
+
+- Scope: local-only replacement of the crop-based art for the eight mobile candidates. Desktop board routes, root rotation, Cloudflare Pages Function behavior, production headers, GitHub, and live mobile fallback were not changed.
+- Image production: eight Image 2.0 masters (hero + detail for each design) were inspected at native resolution and optimized into 16 AVIF/WebP files under `public/mobile-candidates/assets/`. The candidate asset set is approximately 3.8 MiB; no generated PNG masters were added to the repository.
+- Build and checks: Astro check passed (24 files, 0 diagnostics); Vitest passed 17/17; production build completed 14 static pages; local candidate asset gate passed with `AWAR3_MOBILE_CANDIDATES=1` (7.65 MiB build / 12 MiB local budget). `git diff --check` passed.
+- Strict release gate: the normal production asset gate intentionally fails while candidate-only assets are present (candidate assets outside `public/designs`, local candidate file count 16, and build over the 4.10 MiB production budget). This confirms the mobile candidate set cannot be published accidentally.
+- QA: in-app Browser 40/40 at 320/390/430/768/850px and Chrome 16/16 at 390/768px. All images loaded after page-end scroll, copy parity matched, navigation/menu/anchors passed, and consoles were clean. Evidence is archived outside the repository under `../AWAR3_QA_Archive_2026-08-04/mobile-art-pass/`.
+- Release state: no commit, GitHub push, Cloudflare preview, or production deployment. Publication remains gated on user approval of one candidate per design, followed by a separate production asset reduction/release pass.
+- Rollback: remove/revert the local `mobile-candidates` branch changes; the active Cloudflare deployment and published `main` remain unchanged.
+
+## 2026-08-04 13:13 EDT — Third-image completion remains unpublished
+
+- Scope: added four local-only Rethink-panel masters and eight optimized derivatives (`public/mobile-candidates/assets/*-rethink.{avif,webp}`), then switched only the mobile Rethink panel to the new `rethink` art kind. Desktop boards, root rotation, Cloudflare Pages Function behavior, production headers, GitHub state, and live mobile fallback remain unchanged.
+- Image production: ChatGPT Image 2.0 masters were generated from the corresponding approved detail artwork as style references. Native dimensions: Field Station `1003×1568`, Airborne Workshop `1003×1568`, Living Systems `1003×1568`, Industrial Hybrid `1122×1402`. Sharp 0.35.3 optimization: WebP quality 75/effort 6 and AVIF quality 48/effort 7. The eight new derivatives total approximately 1.7 MiB.
+- Rejected attempt: the first Industrial Hybrid Rethink master contained tiny console/floor glyphs and was discarded; a stricter blank-display prompt produced the accepted replacement. No failed PNG was added to the repository.
+- Asset count: 24 candidate assets total (four designs × three art kinds × AVIF/WebP). The earlier plan’s count of 20 was inconsistent with its required two-format output; the test and logs use the physically correct 24-file set.
+- Validation: Astro check 0 diagnostics; Vitest 17/17; static build 14 pages; local candidate asset gate passed at 9.37 MiB / 12 MiB; `git diff --check` passed. Strict production asset gate failed as designed because candidate-only assets are present and the 4.10 MiB production budget is unchanged.
+- Browser QA: in-app Browser 40/40 at 320/390/430/768/850px; Chrome 16/16 at 390/768px. All cells passed one H1, ten sections, four nav links, three unique loaded image URLs, copy parity, lazy-image completion, no overflow, and clean consoles. Menu, anchors, mailto, landmarks, and reduced-motion checks passed.
+- Evidence: `../AWAR3_QA_Archive_2026-08-04/mobile-art-pass-v2/` contains 24 representative captures (eight Browser top views, eight Browser post-scroll diagnostics, and eight Chrome full pages). The local gallery remains the review handoff; local Wrangler is still serving port 8788.
+- Release state: no commit, GitHub push, pull request, Cloudflare preview, or production deployment. Publication remains blocked pending approval of the four new scenes and one mobile candidate per design. Rollback is simply removal/reversion of local `mobile-candidates` changes; the active Cloudflare deployment remains the prior desktop release.
+
+## 2026-08-04 15:46 EDT — Responsive release candidate verified locally
+
+- Scope: production root now pairs the existing scheduled desktop board with the date-selected mobile candidate. Desktop and mobile share the same `field-station | airborne-workshop | living-systems | industrial-hybrid` design family; Candidate A / Board Stack is anchored to August 3, 2026 and Candidate B / Fieldbook to August 4, 2026, alternating thereafter in `America/New_York`.
+- Static output: eight responsive `/variants/{variant}/{a|b}/` routes, eight noindex `/mobile-candidates/{variant}/{a|b}/` review routes, the four existing noindex desktop routes, and the existing industrial fallback were built. The root Pages Function now reports `X-AWAR3-Variant`, `X-AWAR3-Candidate`, and `X-AWAR3-Date` while preserving override no-store/noindex behavior and normal root revalidation.
+- Asset release gate: exactly four desktop boards and 24 approved mobile AVIF/WebP files are allowed. Production build measured 9.51 MiB against the 12 MiB budget; no source images or PNG masters are present.
+- Local release checks: Astro check 0 diagnostics; Vitest 19/19; static build 22 pages; asset gate passed; `git diff --check` passed. In-app Browser passed 40/40 candidate cells (320/390/430/768/850px) plus root 390/1440 visibility checks. Chrome passed 16/16 candidate cells (390/768px). Lazy-image retests, copy parity, menu/anchors/mailto/skip link, overflow, and console checks passed.
+- Local evidence: representative captures are outside the repository at `../AWAR3_QA_Archive_2026-08-04/release-v1-local-browser/`. Local Wrangler is running on `127.0.0.1:8788` for handoff and is not a production deployment.
+- External release state: not yet committed, pushed, or deployed. The next release actions are CI-equivalent audit, scoped commit to `main`, GitHub Actions completion, Cloudflare deployment ID capture, then production headers/route/Browser/Chrome smoke tests.
+- Rollback target: existing published source commit `8a0be233462bd83dc2b2169d7751b7832c259900` and Cloudflare deployment `ad0eeb51` remain the rollback baseline until the new deployment is confirmed. Preserved untracked deployment-summary Markdown remains unchanged.

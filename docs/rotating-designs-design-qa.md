@@ -101,6 +101,48 @@ Discrepancy and correction: the first Industrial Hybrid Image 2.0 hero master cl
 
 Final result for this pass: desktop passed; mobile QA deferred by user request.
 
+## 2026-08-04 — Mobile candidate matrix (local-only)
+
+This pass covers the eight unpublished mobile candidates requested for review: Candidate A (Board Stack) and Candidate B (Fieldbook) for Field Station, Airborne Workshop, Living Systems, and Industrial Hybrid. Desktop routes, root rotation, and the existing live mobile fallback remain unchanged.
+
+| Width | In-app Browser | Chrome cross-check | Copy parity | Overflow / clipping | Console |
+| ---: | ---: | ---: | --- | --- | --- |
+| 320 | 8/8 | — | Pass | 0 | Clean |
+| 390 | 8/8 | 8/8 | Pass | 0 | Clean |
+| 430 | 8/8 | — | Pass | 0 | Clean |
+| 768 | 8/8 | 8/8 | Pass | 0 | Clean |
+| 850 | 8/8 | — | Pass | 0 | Clean |
+
+Totals: `40/40` in-app Browser cells and `16/16` Chrome cells passed. Every route rendered one H1, all ten canonical sections, five art slots, four navigation destinations, the complete selectable Candidate 1B copy, and the canonical confidential-inquiry/email links. At 390px, normalized main-content snapshots matched across all eight routes at 6,080 characters after removing only the A/B identification line.
+
+### Evidence
+
+Representative Browser and Chrome viewport captures are stored outside the deployable repository at:
+
+`AWAR3_QA_Archive_2026-08-04/mobile-candidates/`
+
+The archive contains 32 PNGs: each of the eight routes at 390px and 768px in both Browser and Chrome. These are local inspection artifacts only and are not included in the GitHub or Cloudflare payload.
+
+### Discrepancies, fixes, and retests
+
+| Finding | Correction | Retest |
+| --- | --- | --- |
+| Full-board background crops exposed neighboring board copy in the decorative hero/work/deep art slots. | Added per-variant, per-slot crop positions and inspected each scene in its actual mobile slot. | Browser matrix rerun: 40/40; hero, work, rethink, why, and contact crops retained clean focal art. |
+| Candidate B's two-column specificity overrode the mobile single-column rule, causing narrow text beside the art at 390px. | Added explicit Candidate B single-column overrides below 760px. | Browser and Chrome 390px screenshots; zero clipping or overlap. |
+| Taller 768–850px hero slots revealed the next board panel title. | Increased background scale for hero, feature, and contact slots in the 761–900px range. | Browser/Chrome 768px checks and Browser 850px checks; zero adjacent-panel leakage in the accepted tablet captures. |
+| Inline menu enhancement conflicted with the restrictive self-hosted CSP. | Moved the behavior to `public/mobile-candidates.js`. | All 8 routes loaded with zero console errors/warnings; menu/anchor test passed. |
+| First Wrangler preview attempt hit local log/inspector/watch limits. | Restarted the local preview with the approved elevated permission and an explicit compatibility date. | Preview served all eight routes on `127.0.0.1:8788`; Browser and Chrome matrices completed. |
+
+### Asset and fidelity review
+
+No new raster asset was generated in this pass. The four supplied, optimized desktop WebPs remain the only art payload (3.71 MiB total), and the mobile art slots use high-resolution, deliberately selected crops. This keeps the local candidate set small while retaining each desktop sibling's palette, subject language, technical annotations, and contrast. All marketing copy remains HTML; no CTA, navigation, label, or contact detail is baked into a newly generated asset.
+
+Final result: local candidate pass passed. The gallery is ready for user selection; no candidate is approved for publication yet.
+
+### Gallery handoff retest
+
+The local noindex gallery at `/mobile-candidates/` was added after the matrix pass and opened in the in-app Browser. It exposes all eight routes as distinct Candidate A/B cards. The first capture found the gallery H1 inheriting a dark global heading color against the navy canvas; the heading color was explicitly corrected, then Astro check, Vitest, build, asset budget, and diff-check were rerun with no failures. The in-app Browser remains on the gallery route for selection.
+
 ## 2026-08-03 18:05 EDT — Contact-art correction and final desktop evidence
 
 The prior contact crops contained board-baked CTA/email text, which duplicated the shared HTML copy. Four new Image 2.0 contact masters were generated at 1774×887, inspected at native resolution, and wired into the same semantic contact section. Each master leaves the copy area calm and places the design-specific subject on the right; no text, labels, logos, UI, or watermark is rasterized.
@@ -189,3 +231,102 @@ Result: the four desktop designs pass this reduced scope; the existing live mobi
 - Root selection is device-independent: desktop and iPhone user agents both received Field Station on the same New York date. After normalization of Cloudflare's per-request email-protection tokens, their full HTML responses were identical.
 - Anchors, stylesheet, favicon, mobile script, security headers, `www` redirect, robots, sitemap, valid override, and invalid-override fallback passed direct production checks.
 - Post-deployment in-app Browser visual and click QA is pending. The earlier all-Node process cleanup requested by the user terminated the Browser plugin's helper. Reconnection attempts returned a closed transport, so no production screenshot, console inspection, rendered-overflow check, menu click, hotspot click, or email-link click is claimed in this entry. The already-completed local Browser matrix remains the visual baseline until the in-app Browser helper is restarted and the live routes are rechecked.
+
+## 2026-08-04 11:15–12:15 EDT — Dedicated mobile image-family QA
+
+The crop-based candidate art is superseded. Each design now has a purpose-built Image 2.0 hero and supporting detail image, delivered as AVIF with WebP fallback. The mobile layout uses full uncropped image panels; no desktop composite board is used by the candidate routes.
+
+### Matrix
+
+| Surface | Widths | Routes | Result |
+| --- | --- | ---: | --- |
+| In-app Browser | 320, 390, 430, 768, 850px | 8 | 40/40 passed |
+| Chrome | 390, 768px | 8 | 16/16 passed |
+
+Every cell rendered one H1, ten canonical sections, four navigation destinations, three purpose-built image panels with explicit dimensions and alt text, no hidden canonical copy, no horizontal overflow, and no console errors or warnings. After scrolling to the page end, all lazy images completed with a positive natural width at every tested viewport.
+
+### Copy and interaction
+
+- Normalized main-content snapshots across all eight routes at 390px were identical (`6,215` characters after removing only the candidate-identification line).
+- Candidate A and Candidate B preserve the same wording, punctuation, section order, CTAs, anchors, email link, and contact details from `src/content/site.ts`.
+- The mobile menu opened with `aria-expanded="true"`, exposed all four destinations, the Work anchor changed the fragment to `#work`, and the menu closed. The skip link and mailto CTAs remained present in the DOM.
+
+### Image/fidelity review
+
+- Field Station: alpine cabin, stream, sensors, and field shelter share the cream/forest/alpine palette; crisp focal cabin and stream at native size.
+- Airborne Workshop: airship workshop and interior deck share parchment/sky/navy/rust palette; mechanical rig and cable detail remain readable on mobile.
+- Living Systems: ecological station and botanical workroom share warm paper/green/sage palette; plant and water detail remains coherent without baked labels.
+- Industrial Hybrid: machine test bay and integration room share navy/cream/rust blueprint treatment; control console, cable trays, and machine geometry remain sharp.
+- Visual review found no accidental text, logos, watermarks, warped structures, blur, or unrelated desktop-panel remnants.
+
+### Mismatch ledger and correction
+
+| Evidence | Mismatch | Correction | Retest |
+| --- | --- | --- | --- |
+| First candidate screenshots | Desktop board crops exposed neighboring labels and panel borders. | Generated two dedicated text-free images per design and rebuilt the art slots around them. | Browser/Chrome matrices passed. |
+| Chrome 768 screenshot after first rebuild | Two-column composition made the mobile title and art feel crowded at tablet width. | Raised the candidate stacking breakpoint from 760px to 900px; A/B still differ in art/text order. | Fresh 40-cell Browser and 16-cell Chrome matrices passed. |
+| Chrome lazy-load check | One below-fold detail image was still pending immediately after navigation. | Kept `loading="lazy"` and retested after scrolling to the page end; it loaded cleanly at every width. | All lazy images `complete=true`, `naturalWidth>0`. |
+
+### Evidence
+
+Final representative captures are outside the deployable repository under `../AWAR3_QA_Archive_2026-08-04/mobile-art-pass/` (32 PNGs: Browser 390px and Chrome 768px for all eight candidates). This remains a local review pass; no candidate is approved for publication.
+
+## 2026-08-04 13:13 EDT — Unique Rethink-panel art retest
+
+The repeated `detail` image in the Rethink panel was replaced with a purpose-built image for each design family. Candidate A and Candidate B remain structurally and semantically identical; only their approved ordering/rhythm differs. Desktop boards and production routes were not touched.
+
+### Image review
+
+| Design | Rethink scene | Native size | Inspection |
+| --- | --- | ---: | --- |
+| Field Station | Alpine operations overlook with connected stream, paths, field instruments, and station infrastructure | 1003×1568 | Pass: sharp mountain/stream/instrument detail, calm left edge, no text or watermark |
+| Airborne Workshop | Airborne coordination/navigation deck connected to coastal operating environment | 1003×1568 | Pass: crisp rigging, instruments, blank planning surface, sea/coast context, no text |
+| Living Systems | Interconnected watershed with habitats, water channels, plants, and sensor nodes | 1003×1568 | Pass: crisp water/plant detail and clear ecological connections, no text |
+| Industrial Hybrid | Systems-control floor with linked machines, console, cables, and testing fixtures | 1122×1402 | Pass after regeneration: crisp machinery and blank abstract displays, no accidental glyphs |
+
+The first Industrial Hybrid generation was rejected because tiny console/floor glyphs could read as accidental typography. The failed master remains outside the repository for history; only the regenerated blank-display master was optimized. All accepted masters were inspected at native resolution and in the rendered Rethink slot.
+
+### Matrix retest
+
+| Surface | Widths | Routes | Result |
+| --- | --- | ---: | --- |
+| In-app Browser | 320, 390, 430, 768, 850px | 8 | 40/40 passed |
+| Chrome | 390, 768px | 8 | 16/16 passed |
+
+Every cell rendered one H1, ten sections, four navigation destinations, three unique image URLs per design, explicit dimensions/alt text, complete canonical copy, no hidden sections, no horizontal overflow, and no console errors/warnings. The page-end scroll retest confirmed all lazy images completed with positive natural width.
+
+Normalized main-content copy parity across all eight routes was identical at `6,136` characters after removing only the A/B candidate-identification line. Menu open/close, four-destination exposure, `#work` anchor, inquiry mailto links, skip link, reduced-motion branch, and landmarks passed.
+
+### Evidence and mismatch ledger
+
+- Browser 390px captures and Chrome 768px post-scroll full-page captures: `../AWAR3_QA_Archive_2026-08-04/mobile-art-pass-v2/` (24 PNGs total: eight Browser top views, eight Browser post-scroll diagnostics, and eight Chrome full pages).
+- A first full-page Browser screenshot taken before the lazy-image scroll showed blank below-fold panels and a tiled viewport artifact. Captures were regenerated after page-end scroll; Browser evidence is retained as top-viewport captures and Chrome evidence as full-page captures with all three images loaded.
+- Asset count correction: 16 existing two-format files plus eight new AVIF/WebP Rethink files equals 24 actual candidate files. The test uses 24 because it reflects the required AVIF + WebP pair for each of four new scenes.
+
+Release remains local-only and unpublished pending user approval; no GitHub or Cloudflare state changed.
+
+## 2026-08-04 15:46 EDT — Responsive root release QA
+
+### Local matrix
+
+| Surface | Widths | Routes | Result |
+| --- | --- | ---: | --- |
+| In-app Browser | 320, 390, 430, 768, 850px | 8 mobile candidates | 40/40 passed |
+| Chrome | 390, 768px | 8 mobile candidates | 16/16 passed |
+| In-app Browser root | 390px, 1440px | scheduled responsive root | 2/2 passed |
+
+Every candidate cell rendered one H1, ten sections, four navigation destinations, complete canonical copy, three unique loaded image URLs after page-end scroll, explicit dimensions/alt text, and no hidden sections or horizontal overflow. Console warnings/errors were empty. Normalized copy snapshots were stable across every candidate's tested widths and Candidate A/B structure remained identical apart from the candidate-identification line.
+
+### Responsive-root checks
+
+- Current New York date (`2026-08-04`) selected `airborne-workshop` with Candidate B / Fieldbook in both root viewports.
+- At 390px, the mobile candidate was visible and the desktop board was hidden. At 1440px, the exact desktop board was visible and the mobile candidate was hidden. The paired route and diagnostic `data-responsive-*` values matched in both cases.
+- The four-destination menu, `#work` anchor, inquiry `mailto:` links, skip link, and no-overflow checks passed on the mobile root. The desktop board retained its existing hotspot/anchor structure.
+
+### Retest correction and evidence
+
+- The first Browser capture pass was taken before the lazy Rethink image had completed; it was retested after three page-end scroll passes and all 40 cells then had three loaded images.
+- The first Chrome cross-check used one scroll gesture and left the Rethink image pending. A second page-end scroll was added; the resulting 16/16 Chrome matrix had three loaded images in every cell and clean consoles. The failed intermediate is intentionally recorded rather than overwritten.
+- Representative local Browser captures are outside the repository at `../AWAR3_QA_Archive_2026-08-04/release-v1-local-browser/`.
+
+Release remains local-only until the scoped commit, GitHub Actions deployment, and production smoke/visual checks complete.
